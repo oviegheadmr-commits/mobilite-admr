@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sondage Mobilité — Aide à domicile</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<!-- Police ADMR officielle : GoudySansStd-BoldItalic — à remplacer si disponible -->
+<style>
+:root {
+  --ink:     #2c3e2d;
+  --paper:   #f8f8f8;
+  --accent:  #2E7D32;
+  --accent2: #003F7F;
+  --gold:    #003F7F;
+  --muted:   #455A64;
+  --line:    #e8e8e8;
+  --success: #4a9e5c;
+  --white:   #ffffff;
+  --card-bg: #ffffff;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: #f5f8f3;
+  color: var(--ink);
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ── TEXTURE DE FOND ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(37,99,235,.04) 0%, transparent 50%),
+    radial-gradient(circle at 85% 80%, rgba(5,150,105,.04) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── HERO HEADER ── */
+.hero {
+  background: linear-gradient(135deg, #007632 0%, #005a25 50%, #004d1f 100%);
+  color: var(--white);
+  padding: 3rem 2rem 2.5rem;
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0; right: 0;
+  height: 40px;
+  background: var(--paper);
+  clip-path: polygon(0 100%, 100% 100%, 100% 0, 0 60%);
+}
+.hero-inner {
+  max-width: 780px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.3);
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  margin-bottom: 1.25rem;
+}
+.hero-tag::before { content: ''; width: 6px; height: 6px; background: white; border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+  letter-spacing: -0.02em;
+}
+.hero h1 em {
+  font-style: normal;
+  color: #AFCA0B;
+  position: relative;
+}
+.hero p {
+  font-size: 1.05rem;
+  color: rgba(255,255,255,.65);
+  max-width: 560px;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+.hero-stats {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+.hero-stat { font-size: 0.82rem; color: rgba(255,255,255,.75); display: flex; align-items: center; gap: 0.4rem; }
+.hero-stat strong { color: var(--white); font-weight: 600; }
+
+/* ── PROGRESS ── */
+.progress-wrap {
+  max-width: 780px;
+  margin: 2.5rem auto 0;
+  padding: 0 2rem;
+  position: relative;
+  z-index: 1;
+}
+.progress-bar-bg {
+  height: 4px;
+  background: var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #002a56, #003F7F);
+  border-radius: 2px;
+  transition: width .4s ease;
+  width: 0%;
+}
+.progress-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ── CONTAINER ── */
+.container {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 2rem 2rem 4rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── SECTION ── */
+.section {
+  display: none;
+  animation: slideIn .35s ease;
+}
+.section.active { display: block; }
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid var(--line);
+}
+.section-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 3rem;
+  font-weight: 800;
+  color: #AFCA0B;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: -0.25rem;
+}
+.section-meta {}
+.section-meta h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  color: #007632;
+}
+.section-meta p { font-size: 0.85rem; color: var(--muted); }
+
+/* ── QUESTION ── */
+.question {
+  margin-bottom: 2rem;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeUp .4s ease forwards;
+}
+.question:nth-child(1) { animation-delay: .05s; }
+.question:nth-child(2) { animation-delay: .10s; }
+.question:nth-child(3) { animation-delay: .15s; }
+.question:nth-child(4) { animation-delay: .20s; }
+@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+.q-label {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.q-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px; height: 22px;
+  background: #007632;
+  color: var(--white);
+  font-size: 0.7rem;
+  font-weight: 700;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.q-required { color: var(--accent); margin-left: 2px; }
+
+/* ── OPTIONS ── */
+.options-grid {
+  display: grid;
+  gap: 0.6rem;
+}
+.options-grid.cols2 { grid-template-columns: 1fr 1fr; }
+.options-grid.cols3 { grid-template-columns: repeat(3, 1fr); }
+@media(max-width:500px) {
+  .options-grid.cols2, .options-grid.cols3 { grid-template-columns: 1fr; }
+}
+
+.option-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  color: var(--ink);
+  text-align: left;
+  transition: all .15s;
+  position: relative;
+}
+.option-btn:hover {
+  border-color: #007632;
+  background: white;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(28,95,232,.1);
+}
+.option-btn.selected {
+  border-color: #007632;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(0,118,50,.12);
+}
+.option-btn.selected .opt-check {
+  background: #007632;
+  border-color: #007632;
+}
+.option-btn.selected .opt-check::after { opacity: 1; }
+.opt-check {
+  width: 18px; height: 18px;
+  border: 2px solid var(--line);
+  border-radius: 50%;
+  flex-shrink: 0;
+  position: relative;
+  transition: all .15s;
+}
+.opt-check::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 8px; height: 8px;
+  background: white;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity .15s;
+}
+.opt-emoji { font-size: 1.2rem; filter: saturate(1.5); }
+
+/* ── SELECT ── */
+.styled-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: white;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  color: var(--ink);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a8070' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  cursor: pointer;
+}
+.styled-select:focus {
+  outline: none;
+  border-color: #007632;
+  box-shadow: 0 0 0 3px rgba(28,95,232,.1);
+}
+
+/* ── TEXTAREA ── */
+.styled-textarea {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: white;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  color: var(--ink);
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.6;
+}
+.styled-textarea:focus {
+  outline: none;
+  border-color: #007632;
+  box-shadow: 0 0 0 3px rgba(28,95,232,.1);
+}
+.char-count { font-size: 0.72rem; color: var(--muted); text-align: right; margin-top: 0.3rem; }
+
+/* ── NAVIGATION ── */
+.nav-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+}
+.btn-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  border: none;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .15s;
+  letter-spacing: 0.02em;
+}
+.btn-prev {
+  background: transparent;
+  color: var(--muted);
+  border: 1.5px solid var(--line);
+}
+.btn-prev:hover { color: var(--ink); border-color: var(--ink); }
+.btn-next {
+  background: #007632;
+  color: var(--white);
+  box-shadow: 0 4px 14px rgba(0,118,50,.25);
+}
+.btn-next:hover { background: #005a25; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,118,50,.3); }
+.btn-submit {
+  background: #002a56;
+  color: var(--white);
+  box-shadow: 0 4px 14px rgba(245,124,0,.25);
+}
+.btn-submit:hover { background: #F57C00; transform: translateY(-1px); }
+
+/* ── ERREUR ── */
+.error-msg {
+  display: none;
+  background: #fff0ee;
+  border: 1px solid #fcc;
+  border-radius: 6px;
+  padding: 0.6rem 0.85rem;
+  font-size: 0.82rem;
+  color: var(--accent);
+  margin-top: 1rem;
+  align-items: center;
+  gap: 0.4rem;
+}
+.error-msg.show { display: flex; }
+
+/* ── MERCI ── */
+.merci {
+  display: none;
+  text-align: center;
+  padding: 4rem 2rem;
+  animation: fadeUp .5s ease forwards;
+}
+.merci.show { display: block; }
+.merci-icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  animation: bounce .6s .2s both;
+}
+@keyframes bounce {
+  0%  { transform: scale(0); }
+  60% { transform: scale(1.2); }
+  100%{ transform: scale(1); }
+}
+.merci h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+}
+.merci p {
+  font-size: 1rem;
+  color: var(--muted);
+  max-width: 480px;
+  margin: 0 auto 2rem;
+  line-height: 1.6;
+}
+.merci-share {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.btn-share {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  border-radius: 8px;
+  border: 1.5px solid var(--line);
+  background: white;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--ink);
+  text-decoration: none;
+  transition: all .15s;
+}
+.btn-share:hover { border-color: var(--ink); transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0,0,0,.1); }
+
+/* ── FOOTER ── */
+.footer {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  border-top: 1px solid var(--line);
+  line-height: 2;
+}
+.footer strong { color: var(--ink); }
+
+/* ── CHARGEMENT ── */
+.loading-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(245,243,238,.9);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 1rem;
+}
+.loading-overlay.show { display: flex; }
+.spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--line);
+  border-top-color: #007632;
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag" style="background:rgba(175,202,11,.2); border:1px solid #AFCA0B; color:#AFCA0B;">Sondage anonyme · 2026</div>
+    <h1>Votre <em>véhicule</em>,<br>votre métier.</h1>
+    <p>Vous travaillez dans l'aide à domicile et utilisez votre véhicule personnel ? Partagez votre expérience en 3 minutes — vos réponses contribuent à faire avancer ce sujet essentiel.</p>
+    <div class="hero-stats">
+      <div class="hero-stat">⏱ <strong>3 minutes</strong> environ</div>
+      <div class="hero-stat">🔒 <strong>Anonyme</strong> — aucune donnée personnelle</div>
+      <div class="hero-stat">📊 <strong>Résultats</strong> partagés publiquement</div>
+    </div>
+  </div>
+</div>
+
+<!-- DÉFINITION VÉHICULE DE FONCTION -->
+<div style="max-width:700px; margin:0 auto; padding:0 1.5rem;">
+  <div style="background:#FFF8EE; border-left:4px solid #F18700; border-radius:8px; padding:1.1rem 1.3rem; margin-top:-1.5rem; margin-bottom:1.5rem; position:relative; z-index:2; box-shadow:0 4px 14px rgba(0,0,0,.06);">
+    <p style="margin:0; font-size:0.92rem; color:#4A4A49; line-height:1.5;">
+      <strong style="color:#F18700;">💡 Bon à savoir —</strong> on parle ici d'un <strong>véhicule de fonction</strong> : un véhicule fourni par l'association, utilisable aussi pour vos déplacements personnels (week-end, vacances...) en échange d'une petite redevance mensuelle. C'est différent d'un simple <em>véhicule de service</em>, réservé uniquement au travail.
+    </p>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-wrap">
+  <div class="progress-bar-bg">
+    <div class="progress-bar-fill" id="progressFill"></div>
+  </div>
+  <div class="progress-label">
+    <span id="progressLabel">Section 1 sur 4</span>
+    <span id="progressPct">0%</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ══ SECTION 1 : SITUATION ══ -->
+  <div class="section active" id="sec1">
+    <div class="section-header">
+      <div class="section-num">01</div>
+      <div class="section-meta">
+        <h2>Votre situation</h2>
+        <p>Quelques informations générales pour contextualiser vos réponses</p>
+      </div>
+    </div>
+
+    <div class="question">
+      <div class="q-label"><span class="q-num">1</span> Votre département<span class="q-required">*</span></div>
+      <select class="styled-select" id="q_departement">
+        <option value="">— Sélectionnez votre département —</option>
+        <option>01 - Ain</option><option>02 - Aisne</option><option>03 - Allier</option>
+        <option>04 - Alpes-de-Haute-Provence</option><option>05 - Hautes-Alpes</option>
+        <option>06 - Alpes-Maritimes</option><option>07 - Ardèche</option><option>08 - Ardennes</option>
+        <option>09 - Ariège</option><option>10 - Aube</option><option>11 - Aude</option>
+        <option>12 - Aveyron</option><option>13 - Bouches-du-Rhône</option><option>14 - Calvados</option>
+        <option>15 - Cantal</option><option>16 - Charente</option><option>17 - Charente-Maritime</option>
+        <option>18 - Cher</option><option>19 - Corrèze</option><option>21 - Côte-d'Or</option>
+        <option>22 - Côtes-d'Armor</option><option>23 - Creuse</option><option>24 - Dordogne</option>
+        <option>25 - Doubs</option><option>26 - Drôme</option><option>27 - Eure</option>
+        <option>28 - Eure-et-Loir</option><option>29 - Finistère</option><option>30 - Gard</option>
+        <option>31 - Haute-Garonne</option><option>32 - Gers</option><option>33 - Gironde</option>
+        <option>34 - Hérault</option><option>35 - Ille-et-Vilaine</option><option>36 - Indre</option>
+        <option>37 - Indre-et-Loire</option><option>38 - Isère</option><option>39 - Jura</option>
+        <option>40 - Landes</option><option>41 - Loir-et-Cher</option><option>42 - Loire</option>
+        <option>43 - Haute-Loire</option><option>44 - Loire-Atlantique</option><option>45 - Loiret</option>
+        <option>46 - Lot</option><option>47 - Lot-et-Garonne</option><option>48 - Lozère</option>
+        <option>49 - Maine-et-Loire</option><option>50 - Manche</option><option>51 - Marne</option>
+        <option>52 - Haute-Marne</option><option>53 - Mayenne</option><option>54 - Meurthe-et-Moselle</option>
+        <option>55 - Meuse</option><option>56 - Morbihan</option><option>57 - Moselle</option>
+        <option>58 - Nièvre</option><option>59 - Nord</option><option>60 - Oise</option>
+        <option>61 - Orne</option><option>62 - Pas-de-Calais</option><option>63 - Puy-de-Dôme</option>
+        <option>64 - Pyrénées-Atlantiques</option><option>65 - Hautes-Pyrénées</option>
+        <option>66 - Pyrénées-Orientales</option><option>67 - Bas-Rhin</option><option>68 - Haut-Rhin</option>
+        <option>69 - Rhône</option><option>70 - Haute-Saône</option><option>71 - Saône-et-Loire</option>
+        <option>72 - Sarthe</option><option>73 - Savoie</option><option>74 - Haute-Savoie</option>
+        <option>75 - Paris</option><option>76 - Seine-Maritime</option><option>77 - Seine-et-Marne</option>
+        <option>78 - Yvelines</option><option>79 - Deux-Sèvres</option><option>80 - Somme</option>
+        <option>81 - Tarn</option><option>82 - Tarn-et-Garonne</option><option>83 - Var</option>
+        <option>84 - Vaucluse</option><option>85 - Vendée</option><option>86 - Vienne</option>
+        <option>87 - Haute-Vienne</option><option>88 - Vosges</option><option>89 - Yonne</option>
+        <option>90 - Territoire de Belfort</option><option>91 - Essonne</option>
+        <option>92 - Hauts-de-Seine</option><option>93 - Seine-Saint-Denis</option>
+        <option>94 - Val-de-Marne</option><option>95 - Val-d'Oise</option>
+      </select>
+    </div>
+
+    <div class="question">
+      <div class="q-label"><span class="q-num">2</span> Votre type d'emploi<span class="q-required">*</span></div>
+      <div class="options-grid cols2" data-q="q_emploi">
+        <button class="option-btn" data-val="Aide à domicile / AVS"><span class="opt-emoji">🏠</span><span class="opt-check"></span>Aide à domicile / AVS</button>
+        <button class="option-btn" data-val="Auxiliaire de vie sociale"><span class="opt-emoji">❤️</span><span class="opt-check"></span>Auxiliaire de vie sociale</button>
+        <button class="option-btn" data-val="Infirmier(e) / ASDE"><span class="opt-emoji">🏥</span><span class="opt-check"></span>Infirmier(e) / ASDE</button>
+        <button class="option-btn" data-val="Autre"><span class="opt-emoji">👤</span><span class="opt-check"></span>Autre</button>
+      </div>
+    </div>
+
+    <div class="question">
+      <div class="q-label"><span class="q-num">3</span> Votre ancienneté dans le secteur<span class="q-required">*</span></div>
+      <div class="options-grid cols2" data-q="q_anciennete">
+        <button class="option-btn" data-val="Moins de 2 ans"><span class="opt-check"></span>Moins de 2 ans</button>
+        <button class="option-btn" data-val="2 à 5 ans"><span class="opt-check"></span>2 à 5 ans</button>
+        <button class="option-btn" data-val="5 à 10 ans"><span class="opt-check"></span>5 à 10 ans</button>
+        <button class="option-btn" data-val="Plus de 10 ans"><span class="opt-check"></span>Plus de 10 ans</button>
+      </div>
+    </div>
+
+    <div class="error-msg" id="err1">⚠️ Merci de répondre à toutes les questions obligatoires.</div>
+    <div class="nav-row">
+      <div></div>
+      <button class="btn-nav btn-next" onclick="nextSection(1)">Ma mobilité →</button>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 2 : VÉHICULE ══ -->
+  <div class="section" id="sec2">
+    <div class="section-header">
+      <div class="section-num">02</div>
+      <div class="section-meta">
+        <h2>Votre véhicule</h2>
+        <p>Votre situation actuelle de mobilité professionnelle</p>
+      </div>
+    </div>
+
+    <div class="question">
+      <div class="q-label"><span class="q-num">4</span> Utilisez-vous votre véhicule personnel pour le travail ?<span class="q-required">*</span></div>
+      <div class="options-grid cols2" data-q="q_utilise_vp">
+        <button class="option-btn" data-val="Oui, au quotidien"><span class="opt-emoji">✅</span><span class="opt-check"></span>Oui, au quotidien</button>
+        <button class="option-btn" data-val="Oui, occasionnellement"><span class="opt-emoji">🔄</span><span class="opt-check"></span>Oui, occasionnellement</button>
+        <button class="option-btn" data-val="Non, véhicule fourni"><span class="opt-emoji">🟢</span><span class="opt-check"></span>Non, véhicule fourni</button>
+        <button class="option-btn" data-val="Non, transport en commun"><span class="opt-emoji">🚌</span><span class="opt-check"></span>Non, autre moyen</button>
+      </div>
+    </div>
+
+    <div class="question">
+      <div class="q-label"><span class="q-num">5</span> Âge de votre véhicule personnel<span class="q-required">*</span></div>
+      <div class="options-grid cols2" data-q="q_age_vehicule">
+        <button class="option-btn" data-val="Moins de 3 ans"><span class="opt-emoji">🆕</span><span class="opt-check"></span>Moins de 3 ans</button>
+        <button class="option-btn" data-val="3 à 6 ans"><span class="opt-emoji">🟡</span><span class="opt-check"></span>3 à 6 ans</button>
+        <button class="option-btn" data-val="6 à 10 ans"><span class="opt-emoji">🟠</span><span class="opt-check"></span>6 à 10 ans</button>
+        <button class="option-btn" data-val="Plus de 10 ans"><span class="opt-emoji">🔴</span><span class="opt-check"></span>Plus de 10 ans</button>
+      </div>
+    </div>
+
+    <div class="question">
+      <div class="q-label"><span class="q-num">6</span> Avez-vous déjà eu une panne lors d'une intervention ?<span class="q-required">*</span></div>
+      <div class="options-grid cols3" data-q="q_panne">
+        <button class="option-btn" data-val="Jamais"><span class="opt-emoji">😌</span><span class="opt-check"></span>Jamais</button>
+        <button class="option-btn" data-val="1 à 2 fois"><span class="opt-emoji">😬</span><span class="opt-check"></span>1 à 2 fois</button>
+        <button class="option-btn" data-val="Régulièrement"><span class="opt-emoji">😰</span><span class="opt-check"></span>Régulièrement</button>
+      </div>
+    </div>
+
+    <div class="question">
+      <div class="q-label"><span class="q-num">7</span> Vos indemnités kilométriques couvrent-elles vos frais réels ?<span class="q-required">*</span></div>
+      <div class="options-grid cols2" data-q="q_ik_suffisantes">
+        <button class="option-btn" data-val="Oui, largement"><span class="opt-emoji">💚</span><span class="opt-check"></span>Oui, largement</button>
+        <button class="option-btn" data-val="À peu près"><span class="opt-emoji">🟡</span><span class="opt-check"></span>À peu près</button>
+        <button class="option-btn" data-val="Non, insuffisantes"><span class="opt-emoji">🔴</span><span class="opt-check"></span>Non, insuffisantes</button>
+        <button class="option-btn" data-val="Je ne sais pas"><span class="opt-emoji">🤷</span><span class="opt-check"></span>Je ne sais pas</button>
+      </div>
+    </div>
+
+    <div class="error-msg" id="err2">⚠️ Merci de répondre à toutes les questions obligatoires.</div>
+    <div class="nav-row">
+      <button class="btn-nav btn-prev" onclick="prevSection(2)">← Retour</button>
+      <button class="btn-nav btn-next" onclick="nextSection(2)">Mes attentes →</button>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 3 : ATTENTES ══ -->
+  <div class="section" id="sec3">
+    <div class="section-header">
+      <div class="section-num">03</div>
+      <div class="section-meta">
+        <h2>Vos attentes</h2>
+        <p>Ce que vous pensez du véhicule fourni par votre employeur</p>
+      </div>
+    </div>
+
+    <div class="question">
+      <div class="q-label"><span class="q-num">8</span> Un véhicule de fonction — utilisable aussi le week-end et pour vos trajets perso, moyennant une petite redevance — changerait-il votre rapport à ce métier ?<span class="q-required">*</span></div>
+      <div class="options-grid" data-q="q_impact_metier">
+        <button class="option-btn" data-val="Oui, beaucoup — c'est essentiel pour moi"><span class="opt-emoji">🌟</span><span class="opt-check"></span>Oui, beaucoup — c'est essentiel pour moi</button>
+        <button class="option-btn" data-val="Oui, un peu — ça faciliterait mon quotidien"><span class="opt-emoji">👍</span><span class="opt-check"></span>Oui, un peu — ça faciliterait mon quotidien</button>
+        <button class="option-btn" data-val="Non, je préfère garder mon véhicule personnel"><span class="opt-emoji">🚗</span><span class="opt-check"></span>Non, je préfère garder mon véhicule personnel</button>
+        <button class="option-btn" data-val="Je ne sais pas"><span class="opt-emoji">🤔</span><span class="opt-check"></span>Je ne sais pas encore</button>
+      </div>
+    </div>
+
+    <div class="question">
+      <div class="q-label"><span class="q-num">9</span> Avez-vous déjà refusé un poste à cause des frais ou contraintes de déplacement ?<span class="q-required">*</span></div>
+      <div class="options-grid cols3" data-q="q_refus_poste">
+        <button class="option-btn" data-val="Oui"><span class="opt-emoji">✋</span><span class="opt-check"></span>Oui</button>
+        <button class="option-btn" data-val="Non"><span class="opt-emoji">🙂</span><span class="opt-check"></span>Non</button>
+        <button class="option-btn" data-val="J'y ai pensé"><span class="opt-emoji">💭</span><span class="opt-check"></span>J'y ai pensé</button>
+      </div>
+    </div>
+
+    <div class="question">
+      <div class="q-label"><span class="q-num">10</span> Votre association vous a-t-elle déjà proposé un véhicule de fonction ou de service ?<span class="q-required">*</span></div>
+      <div class="options-grid cols3" data-q="q_proposi_vf">
+        <button class="option-btn" data-val="Oui"><span class="opt-emoji">✅</span><span class="opt-check"></span>Oui</button>
+        <button class="option-btn" data-val="Non"><span class="opt-emoji">❌</span><span class="opt-check"></span>Non</button>
+        <button class="option-btn" data-val="Je ne sais pas"><span class="opt-emoji">🤷</span><span class="opt-check"></span>Je ne sais pas</button>
+      </div>
+    </div>
+
+    <div class="question">
+      <div class="q-label"><span class="q-num">11</span> Seriez-vous prêt(e) à payer une petite redevance mensuelle pour pouvoir utiliser ce véhicule aussi en dehors du travail (week-end, vacances...) ?<span class="q-required">*</span></div>
+      <div class="options-grid cols3" data-q="q_redevance">
+        <button class="option-btn" data-val="Oui"><span class="opt-emoji">✅</span><span class="opt-check"></span>Oui</button>
+        <button class="option-btn" data-val="Peut-être"><span class="opt-emoji">🤔</span><span class="opt-check"></span>Peut-être</button>
+        <button class="option-btn" data-val="Non"><span class="opt-emoji">❌</span><span class="opt-check"></span>Non</button>
+      </div>
+    </div>
+
+    <div class="error-msg" id="err3">⚠️ Merci de répondre à toutes les questions obligatoires.</div>
+    <div class="nav-row">
+      <button class="btn-nav btn-prev" onclick="prevSection(3)">← Retour</button>
+      <button class="btn-nav btn-next" onclick="nextSection(3)">Message libre →</button>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 4 : LIBRE ══ -->
+  <div class="section" id="sec4">
+    <div class="section-header">
+      <div class="section-num">04</div>
+      <div class="section-meta">
+        <h2>Votre message</h2>
+        <p>Une dernière chose à dire — à vos dirigeants, à la fédération, ou à tous</p>
+      </div>
+    </div>
+
+    <div class="question">
+      <div class="q-label"><span class="q-num">12</span> Un message pour vos dirigeants ou la fédération ? <span style="color:var(--muted);font-weight:400;">(optionnel)</span></div>
+      <textarea class="styled-textarea" id="q_message" maxlength="500"
+        placeholder="Ex : Je pense que le sujet du véhicule est essentiel pour attirer et fidéliser les intervenants. Mon vieux véhicule me coûte plus cher que ce que je reçois en IK..."
+        oninput="majCharCount()"></textarea>
+      <div class="char-count"><span id="charCount">0</span> / 500 caractères</div>
+    </div>
+
+    <div style="background:linear-gradient(135deg,#f0f7ff,#eff8f3); border-radius:10px; padding:1.25rem 1.5rem; margin-bottom:1.5rem; border:1px solid var(--line);">
+      <div style="font-family:'Syne',sans-serif; font-weight:700; font-size:0.9rem; margin-bottom:0.5rem;">🔒 Avant d'envoyer</div>
+      <ul style="font-size:0.82rem; color:var(--muted); line-height:2; list-style:none;">
+        <li>✓ Vos réponses sont totalement anonymes</li>
+        <li>✓ Aucun nom, email ou information personnelle collecté</li>
+        <li>✓ Les résultats seront partagés publiquement sous forme agrégée</li>
+      </ul>
+    </div>
+
+    <div class="error-msg" id="err4">⚠️ Une erreur s'est produite. Vérifiez votre connexion et réessayez.</div>
+    <div class="nav-row">
+      <button class="btn-nav btn-prev" onclick="prevSection(4)">← Retour</button>
+      <button class="btn-nav btn-submit" onclick="soumettre()">Envoyer mes réponses ✓</button>
+    </div>
+  </div>
+
+  <!-- ══ MERCI ══ -->
+  <div class="merci" id="merci">
+    <div class="merci-icon">🎉</div>
+    <h2>Merci pour votre participation !</h2>
+    <p>Votre réponse a bien été enregistrée. Votre réponse est précieuse. Les résultats de ce sondage seront partagés auprès des acteurs du secteur pour mieux appréhender les enjeux de mobilité dans l'aide à domicile.</p>
+    <div class="merci-share">
+      <a class="btn-share" href="https://www.facebook.com/sharer/sharer.php?u=https://oviegheadmr-commits.github.io/mobilite-admr/sondage_mobilite_admr.html" target="_blank">
+        📘 Partager sur Facebook
+      </a>
+      <a class="btn-share" href="https://www.linkedin.com/sharing/share-offsite/?url=https://oviegheadmr-commits.github.io/mobilite-admr/sondage_mobilite_admr.html" target="_blank">
+        💼 Partager sur LinkedIn
+      </a>
+      <button class="btn-share" onclick="copyLink()">
+        🔗 Copier le lien
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer" style="background:white;">
+  <strong>© 2026 Olivier VIEGHE</strong><br>
+  Outil libre de diffusion — usage non commercial<br>
+  Développé pour les professionnels de l'aide à domicile 🏠<br>
+  <span style="color:var(--line);">Aucune donnée personnelle collectée</span>
+</div>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <p style="font-family:'Syne',sans-serif; font-weight:600;">Envoi en cours...</p>
+</div>
+
+<script>
+// ══ CONFIG — REMPLACER PAR VOTRE URL GOOGLE APPS SCRIPT ══
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyaHph3mofYzAvfbFnCcgKKUomiz7yoZMTgKQyEbEgF5MUZ3h19oT7jKN58zpAVGzUW/exec';
+// ════════════════════════════════════════════════════════
+
+// ══ ÉTAT ══
+const answers = {};
+let currentSection = 1;
+const TOTAL_SECTIONS = 4;
+
+// ══ PROGRESS ══
+function updateProgress(section) {
+  const pct = Math.round(((section - 1) / TOTAL_SECTIONS) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = 'Section ' + section + ' sur ' + TOTAL_SECTIONS;
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+
+// ══ OPTIONS ══
+document.querySelectorAll('.options-grid').forEach(grid => {
+  const qName = grid.dataset.q;
+  grid.querySelectorAll('.option-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      grid.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      answers[qName] = btn.dataset.val;
+    });
+  });
+});
+
+// ══ CHAR COUNT ══
+function majCharCount() {
+  const v = document.getElementById('q_message').value;
+  document.getElementById('charCount').textContent = v.length;
+  answers['q_message'] = v;
+}
+
+// ══ VALIDATION ══
+function validerSection(n) {
+  const requis = {
+    1: ['q_emploi','q_anciennete'],
+    2: ['q_utilise_vp','q_age_vehicule','q_panne','q_ik_suffisantes'],
+    3: ['q_impact_metier','q_refus_poste','q_proposi_vf','q_redevance'],
+    4: []
+  };
+
+  // Section 1 : vérifier aussi le select département
+  if (n === 1) {
+    const dept = document.getElementById('q_departement').value;
+    if (!dept) {
+      answers['q_departement'] = '';
+      document.getElementById('err1').classList.add('show');
+      return false;
+    }
+    answers['q_departement'] = dept;
+  }
+
+  for (const q of requis[n]) {
+    if (!answers[q]) {
+      document.getElementById('err' + n).classList.add('show');
+      return false;
+    }
+  }
+  document.getElementById('err' + n)?.classList.remove('show');
+  return true;
+}
+
+// ══ NAVIGATION ══
+function nextSection(from) {
+  if (!validerSection(from)) {
+    document.getElementById('err' + from).scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+  const to = from + 1;
+  document.getElementById('sec' + from).classList.remove('active');
+  document.getElementById('sec' + to).classList.add('active');
+  currentSection = to;
+  updateProgress(to);
+  window.scrollTo({top: 0, behavior:'smooth'});
+}
+
+function prevSection(from) {
+  const to = from - 1;
+  document.getElementById('sec' + from).classList.remove('active');
+  document.getElementById('sec' + to).classList.add('active');
+  currentSection = to;
+  updateProgress(to);
+  window.scrollTo({top: 0, behavior:'smooth'});
+}
+
+// ══ SOUMISSION ══
+async function soumettre() {
+  answers['q_message'] = document.getElementById('q_message').value || '';
+
+  const payload = {
+    date:           new Date().toLocaleString('fr-FR'),
+    departement:    answers['q_departement'] || '',
+    emploi:         answers['q_emploi'] || '',
+    anciennete:     answers['q_anciennete'] || '',
+    utilise_vp:     answers['q_utilise_vp'] || '',
+    age_vehicule:   answers['q_age_vehicule'] || '',
+    panne:          answers['q_panne'] || '',
+    ik_suffisantes: answers['q_ik_suffisantes'] || '',
+    impact_metier:  answers['q_impact_metier'] || '',
+    refus_poste:    answers['q_refus_poste'] || '',
+    proposi_vf:     answers['q_proposi_vf'] || '',
+    redevance:      answers['q_redevance'] || '',
+    message:        answers['q_message'] || ''
+  };
+
+  // Si pas encore configuré → mode démo
+  if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL === 'VOTRE_URL_ICI') {
+    console.log('Mode démo — réponses :', payload);
+    afficherMerci();
+    return;
+  }
+
+  document.getElementById('loadingOverlay').classList.add('show');
+  try {
+    await fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    afficherMerci();
+  } catch(e) {
+    document.getElementById('loadingOverlay').classList.remove('show');
+    document.getElementById('err4').classList.add('show');
+    console.error('Erreur envoi :', e);
+  }
+}
+
+function afficherMerci() {
+  document.getElementById('loadingOverlay').classList.remove('show');
+  document.getElementById('sec4').classList.remove('active');
+  document.getElementById('merci').classList.add('show');
+  updateProgress(5);
+  document.getElementById('progressLabel').textContent = 'Sondage complété ✓';
+  document.getElementById('progressPct').textContent = '100%';
+  document.getElementById('progressFill').style.width = '100%';
+  window.scrollTo({top: 0, behavior:'smooth'});
+}
+
+function copyLink() {
+  const url = window.location.href;
+  navigator.clipboard?.writeText(url).then(() => {
+    alert('Lien copié ! Partagez-le avec vos collègues.');
+  }).catch(() => {
+    prompt('Copiez ce lien :', url);
+  });
+}
+
+// ══ INIT ══
+updateProgress(1);
+</script>
+</body>
+</html>
